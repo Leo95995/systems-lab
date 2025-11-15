@@ -1,0 +1,60 @@
+services:
+  frontend:
+    container_name: fe-service-deploy
+    restart: always
+    ports:
+      - "3000:80"
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    networks:
+      - react-express
+    # There is no meaning in passing an env file because frontend ha already everything after npm run build
+    # env_file:
+    #   - .env.local.fe
+    depends_on:
+      - backend
+
+  # --- SERVIZIO BACKEND BASE ---
+
+  backend:
+    container_name: be-service-deploy
+    restart: always
+    env_file:
+      - .env.local.be
+    depends_on:
+      - database
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - react-express
+###> doctrine/doctrine-bundle ###
+  database:
+    image: postgres:${POSTGRES_VERSION:-16}-alpine
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      # You should definitely change the password in production
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
+      POSTGRES_USER: ${POSTGRES_USER:-app}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - database_data:/var/lib/postgresql/data:rw
+    networks:
+    - react-express
+
+volumes:
+  database_data:
+
+# --- RETI E VOLUMI BASE ---
+networks:
+  react-express:
+    driver: bridge

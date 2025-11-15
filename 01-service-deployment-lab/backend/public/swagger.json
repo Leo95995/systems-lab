@@ -1,0 +1,502 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Gestione Task",
+        "version": "1.0.0",
+        "description": "API per la gestione delle task"
+    },
+    "servers": [
+        {
+            "url": "https://symfo-api-poc-production-be.up.railway.app/api"
+        },
+        {
+            "url": "http://localhost:8000/api"
+        }
+    ],
+    "paths": {
+        "/task": {
+            "get": {
+                "summary": "Recupera tutti task che non sono stati archiviati.",
+                "operationId": "getAllTasks",
+                "responses": {
+                    "200": {
+                        "description": "Elenco dei task",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "tasks": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Task"
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Crea una nuova task",
+                "operationId": "createTask",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TaskInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Task creata con successo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Errore di validazione"
+                    }
+                }
+            }
+        },
+        "/task/archive": {
+            "get": {
+                "summary": "Recupera tutti i task archiviati",
+                "operationId": "getArchivedTasks",
+                "responses": {
+                    "200": {
+                        "description": "Elenco dei task archiviati",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "tasks": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Task"
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/task/{id}": {
+            "get": {
+                "summary": "Recupera una task tramite ID",
+                "operationId": "getSingleTask",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "ID del task"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Task trovata",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Task non trovata. Questo errore si verifica se l'ID passato non corrisponde a nessuna task nel database."
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Elimina una task",
+                "operationId": "deleteTask",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "ID del task da eliminare"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Task eliminato con successo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Task eliminato con successo"
+                                        },
+                                        "task": {
+                                            "$ref": "#/components/schemas/Task"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Task non trovata. Questo errore si verifica se l'ID passato non corrisponde a nessuna task nel database."
+                    }
+                }
+            },
+            "patch": {
+                "summary": "Aggiorna una task esistente",
+                "operationId": "updateTask",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "Viene passato l'id del task da modificare."
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "Modifica il contenuto del task. Il body richiede i campi titolo, descrizione ,data e stato. Se la task è già nello stato richiesto, non cambia nulla.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TaskEditDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Task aggiornata con successo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Task non trovato. Questo errore si verifica se l'ID passato non corrisponde a nessuna task nel database."
+                    }
+                }
+            }
+        },
+        "/task/archive/{id}": {
+            "patch": {
+                "summary": "Imposta lo stato del task come archiviato/non archiviato ",
+                "operationId": "archiveTask",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "description": "ID del task"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "Aggiorna lo stato di archiviazione della task. Il body richiede il campo 'archiviato' booleano. Se la task è già nello stato richiesto, non viene alterato lo stato.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ArchiveTaskBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Task trovato",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Task"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Task non trovato. Questo errore si verifica se l'ID passato non corrisponde a nessuna task nel database."
+                    },
+                    "400": {
+                        "description": "Bad Request.Formato JSON Invalido"
+                    }
+                }
+            }
+        },
+        "/task/export/json": {
+            "get": {
+                "summary": "Esporta i task in formato JSON, opzionalmente filtrati per stato",
+                "operationId": "exportTasksByStatus",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "description": "Lo stato dei task da esportare",
+                        "schema": {
+                            "type": "string",
+                            "enum": ["all", "archived", "actives"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Esportazione completata con successo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "tasks": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Task"
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Parametro status non valido"
+                    }
+                }
+            }
+        },
+        "/task/import-json": {
+            "post": {
+                "summary": "Importa un array di task direttamente nel database",
+                "operationId": "importTasks",
+                "requestBody": {
+                    "description": "Array di oggetti Task da importare nel database. Ogni Task deve contenere almeno titolo, descrizione, data e stato.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/TaskInput"
+                                },
+                                "example": [
+                                    {
+                                        "titolo": "Task 1",
+                                        "descrizione": "Descrizione 1",
+                                        "data": 1691059200,
+                                        "stato": "in_corso"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Import completato (alcuni task potrebbero avere errori)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "type": "object",
+                                            "properties": {
+                                                "importati": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "errori": {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "type": "string",
+                                                        "example": "Campo titolo mancante"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "JSON non valido o payload non corretto",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": { "type": "string" },
+                                        "details": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Errore interno durante l'import",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Errore"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "TaskInput": {
+                "type": "object",
+                "required": ["titolo"],
+                "properties": {
+                    "titolo": {
+                        "type": "string",
+                        "description": "Titolo della task",
+                        "example": "Comprare il caffè"
+                    },
+                    "descrizione": {
+                        "type": "string",
+                        "description": "Descrizione del task",
+                        "example": "Andare al supermercato e comprare una confezione di caffè"
+                    },
+                    "data": {
+                        "type": "integer",
+                        "format": "int64",
+                        "description": "Data del task come timestamp UNIX",
+                        "example": 1691059200
+                    },
+                    "stato": {
+                        "type": "string",
+                        "description": "Stato del task",
+                        "enum": ["da_fare", "in_corso", "completata"],
+                        "example": "todo"
+                    }
+                }
+            },
+            "TaskEditDto": {
+                "type": "object",
+                "properties": {
+                    "titolo": {
+                        "type": "string",
+                        "example": "Comprare il latte"
+                    },
+                    "descrizione": {
+                        "type": "string",
+                        "example": "Andare al supermercato e comprare una confezione di latte"
+                    },
+                    "data": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1691145600
+                    },
+                    "stato": {
+                        "type": "string",
+                        "enum": ["da_fare", "in_corso", "completata"],
+                        "example": "in_corso"
+                    }
+                }
+            },
+            "ArchiveTaskBody": {
+                "type": "object",
+                "properties": {
+                    "archiviato": {
+                        "type": "boolean",
+                        "example": false
+                    }
+                }
+            },
+            "Task": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 123,
+                        "description": "Identificatore univoco del task."
+                    },
+                    "titolo": {
+                        "type": "string",
+                        "example": "Comprare il caffè",
+                        "description": "Titolo del task. Campo obbligatorio."
+                    },
+                    "archiviato": {
+                        "type": "boolean",
+                        "example": false,
+                        "description": "Campo booleano che identifica se il task è stato archiviato o meno. Nella creazione viene popolato di default con false."
+                    },
+                    "descrizione": {
+                        "type": "string",
+                        "example": "Andare al supermercato e comprare una confezione di caffè",
+                        "description": "Descrizione opzionale del task, utile per fornire dettagli aggiuntivi"
+                    },
+                    "data": {
+                        "type": "integer",
+                        "format": "int64",
+                        "example": 1691059200,
+                        "description": "Timestamp della data del task, espresso in secondi, coerente tra client e server."
+                    },
+                    "stato": {
+                        "type": "string",
+                        "enum": ["da_fare", "in_corso", "completata"],
+                        "example": "da_fare",
+                        "description": "Indica lo stato attuale del task. Può essere 'da_fare', 'in_corso' o 'completata'."
+                    }
+                }
+            }
+        }
+    }
+}

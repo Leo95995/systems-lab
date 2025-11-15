@@ -1,0 +1,14 @@
+nelmio_cors:
+    defaults:
+        allow_origin: ["http://localhost:5173", "http://localhost:3000", "https://symfony-task-manager.up.railway.app"]
+        allow_methods: ["GET", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]
+        allow_headers: ["Content-Type", "Authorization"]
+        expose_headers: ["Link"]
+        max_age: 3600
+    paths:
+        "^/":
+            allow_origin: ["http://localhost:5173", "http://localhost:3000", "https://symfony-task-manager.up.railway.app"]
+            allow_methods: ["GET", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]
+            allow_headers: ["Content-Type", "Authorization"]
+            expose_headers: ["Link"]
+            max_age: 3600

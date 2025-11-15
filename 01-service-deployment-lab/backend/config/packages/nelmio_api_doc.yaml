@@ -1,0 +1,9 @@
+nelmio_api_doc:
+  documentation:
+    info:
+      title: "Swagger Todo List"
+      description: "API per la todolist"
+      version: "1.0.0"
+  areas:
+    default:
+      path_patterns: [^/api]
