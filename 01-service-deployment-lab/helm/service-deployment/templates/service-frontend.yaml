@@ -1,0 +1,19 @@
+# il trattino - serve e funge da taglia spazi.
+# indent N -> aggiunge indentazione
+# nindent N -> Rimuove ind 
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-frontend" (include "service-deployment-app.fullname" .) }}
+  labels:
+    {{ include "service-deployment-app.labels" . | nindent 4}}
+spec:
+  type: ClusterIP # Accesso solo interno, esposto da Ingress
+  ports:
+    - port: 3000 # porta esposta
+      targetPort: 80 # Porta sul container
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: frontend
+    app.kubernetes.io/instance: {{ .Release.Name }}

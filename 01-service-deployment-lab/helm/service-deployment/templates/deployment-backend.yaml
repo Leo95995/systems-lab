@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:
+    {{ printf "%s-backend" (include "service-deployment-app.fullname" .) }}
+  labels:
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: backend
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: backend
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+    # volumes devono stare al livello di spec
+      volumes:             
+        - name: init-sql
+          configMap:
+            name: db-init-sql
+      # Secret qui sotto. Servivano se non usavo immagini mie di docker
+      imagePullSecrets:
+        - name: regcred
+      # da capire.. service account di default
+      serviceAccountName: default
+      # Init container serve per bloccare l'avvio del container finchè non è pronto il db
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          env:
+            - name: DATABASE_HOST
+              value: "{{ .Values.db.host }}"
+            - name: DATABASE_PORT
+              value: "{{ .Values.db.port }}"
+            - name: DATABASE_USER
+              value: "{{ .Values.db.username }}"
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for DB..."
+              until pg_isready -h $DATABASE_HOST -p $DATABASE_PORT -U $DATABASE_USER; do
+                sleep 2
+              done
+              echo "DB ready, applying init.sql..."
+              PGPASSWORD=$DATABASE_PASSWORD psql -h $DATABASE_HOST -U $DATABASE_USER -d $DATABASE_NAME -f /docker-entrypoint-initdb.d/init.sql
+              echo "DB initialization complete"
+      # gli dico prendi il volume init-sql che ha il file init sql e mettilo dentro /docker bla bla -> questo percorso lo usa poi
+      # psql per leggere ed eseguire lo script
+ 
+
+      containers:
+        - name: backend-container
+          image: "{{ .Values.images.backend.repository }}:{{ .Values.images.backend.tag }}"
+          imagePullPolicy: {{ .Values.images.backend.pullPolicy }}
+          volumeMounts:
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          # riferimento ai segreti sotto
+          envFrom:
+            - secretRef:
+                name: backend-secrets
+          # Configurazione risorse
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          # Definisco l'env da cui attingere ( li prende dal campo db dentro il values yaml)
+          env:
+            - name: DATABASE_HOST
+              value: "{{ .Values.db.host }}"
+            - name: DATABASE_PORT
+              value: "{{ .Values.db.port }}"
+            - name: DATABASE_NAME
+              value: "{{ .Values.db.database }}"
+            - name: DATABASE_USER
+              value: "{{ .Values.db.username }}"
+            - name: DATABASE_PASSWORD
+              value: "{{ .Values.db.password }}"
+
+         

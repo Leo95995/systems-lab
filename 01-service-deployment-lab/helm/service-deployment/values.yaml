@@ -1,0 +1,40 @@
+# Numero di repliche per tutti i deployment
+replicaCount: 1
+
+# inserisco qui le immagini docker da utilizzare
+images:
+  backend:
+    repository: leo68249/service-deployment-be #  repository backend
+    tag: latest
+    pullPolicy: Always
+  frontend:
+    repository: leo68249/service-deployment-fe # repository frontend
+    tag: latest
+    pullPolicy: Always
+    
+# Porte dei Servizi
+service:
+  backend:
+    port: 3000
+    type: ClusterIP # Uso interno al cluster
+  frontend:
+    port: 80
+    type: LoadBalancer # Accesso esterno
+
+db:
+  version: "16-alpine"
+  storage: 1Gi
+  username: app
+  password: "!ChangeMe!"
+  database: app
+  # Come host usiamo il service
+  port: 5432
+  host: deployment-service-service-deployment-app-db
+
+# Configurazione Ingress, da gestire più avanti
+ingress:
+  enabled: false
+
+# Qui si può mettere i secret da usare
+appSecrets:
+  databaseUrl: "" # codifica di questo valore che poi lo prende il secret

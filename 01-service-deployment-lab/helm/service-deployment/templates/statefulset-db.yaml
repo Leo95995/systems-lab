@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ printf "%s-db" (include "service-deployment-app.fullname" .) }}
+  labels:
+    {{ include "service-deployment-app.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ printf "%s-db" (include "service-deployment-app.fullname" .) }}
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: db
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: db
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: db-init-sql
+          configMap:
+            name: db-init-sql
+      containers:
+        - name: postgres
+          image: "postgres:{{ .Values.db.version }}"
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              value: "{{ .Values.db.database }}"
+            - name: POSTGRES_USER
+              value: "{{ .Values.db.username }}"
+            - name: POSTGRES_PASSWORD
+              value: "{{ .Values.db.password }}"
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            - name: db-init-sql
+              mountPath: /docker-entrypoint-initdb.d
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.db.storage }}

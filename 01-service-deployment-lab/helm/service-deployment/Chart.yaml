@@ -1,0 +1,12 @@
+#  Definisce il nome e la versione di helm
+
+apiVersion: v2
+name: service-deployment-app
+icon: https://devopscube.com/content/images/size/w300/format/webp/2025/03/Comtechies-Logo--10-.png
+description: Helm chart for Service Deployment Project
+# A chart can be either an 'application' or a 'library' chart.
+type: application
+# This is the chart version. This version number should be incremented each time you make changes
+version: 0.1.0
+# This is the version number of the application being deployed. This version number should be incremented each time you make changes to the application. 
+appVersion: "1.16.0"
