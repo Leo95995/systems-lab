@@ -37,8 +37,12 @@ spec:
               value: "{{ .Values.db.host }}"
             - name: DATABASE_PORT
               value: "{{ .Values.db.port }}"
+            - name: DATABASE_NAME
+              value: "{{ .Values.db.database }}"
             - name: DATABASE_USER
               value: "{{ .Values.db.username }}"
+            - name: DATABASE_PASSWORD
+              value: "{{ .Values.db.password }}"
           command:
             - sh
             - -c
@@ -52,8 +56,6 @@ spec:
               echo "DB initialization complete"
       # gli dico prendi il volume init-sql che ha il file init sql e mettilo dentro /docker bla bla -> questo percorso lo usa poi
       # psql per leggere ed eseguire lo script
- 
-
       containers:
         - name: backend-container
           image: "{{ .Values.images.backend.repository }}:{{ .Values.images.backend.tag }}"

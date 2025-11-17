@@ -36,5 +36,3 @@ ingress:
   enabled: false
 
 # Qui si può mettere i secret da usare
-appSecrets:
-  databaseUrl: "" # codifica di questo valore che poi lo prende il secret
