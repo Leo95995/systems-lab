@@ -1,0 +1,7 @@
+# Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.serviceAccount.name}}
+  namespace: {{ .Values.serviceAccount.namespace | default "kube-system" }}
+automountServiceAccountToken: true
