@@ -31,8 +31,10 @@ db:
   port: 5432
   host: deployment-service-service-deployment-app-db
 
-# Configurazione Ingress, da gestire più avanti
 ingress:
   enabled: false
 
-# Qui si può mettere i secret da usare
+serviceAccount:
+  create: true
+  name: k3s-admin
+  namespace: kube-system
