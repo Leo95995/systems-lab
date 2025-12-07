@@ -20,6 +20,10 @@ mkdir /home/$USER_NAME/.ssh
 
 # Chown -R assegna la proprieta della directory al nuovo utente
 chown -R $USER_NAME:$USER_NAME /home/$USER_NAME/.ssh
+chown -R $USER_NAME:$USER_NAME /home/$USER_NAME/.ssh/authorized_keys
+
+# Aggiungo anche la password per lo user
+passwd $USER_NAME
 
 # assegno 700 a ssh
 chmod 700 /home/$USER_NAME/.ssh
