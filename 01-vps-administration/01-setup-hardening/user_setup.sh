@@ -1,6 +1,7 @@
 # Scopo :
 # Realizzare no script per accesso sicuro tramite ssh
-#
+# Esce se trova errore
+set -e
 
 USER_NAME=${1:-"leox"}
 PUBLIC_KEY=${2:-"INSERT_PUBLIC_KEY"}
@@ -12,7 +13,6 @@ useradd -m -s /bin/bash $USER_NAME
 # User Mod si usa per modificare o aggiornare gli attributi di un utente 
 # -a -> Appende , -G  aggiunge l'utente al gruppo sudos
 usermod -aG sudo $USER_NAME
-
 
 # Create directory ssh and insert public key
 
