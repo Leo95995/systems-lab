@@ -1,12 +1,10 @@
 #!/bin/bash
 
-
+set -e
 
 KEY_NAME=$1
 HOST_IP=${2:-"insert_real_ip"}
 HOST_ALIAS=${3:-"Specify_host_alias"}
-
-set -e
 
 
 echo "KEY_NAME : $KEY_NAME"
