@@ -24,9 +24,10 @@ chown -R $USER_NAME:$USER_NAME /home/$USER_NAME/.ssh
 # assegno 700 a ssh
 chmod 700 /home/$USER_NAME/.ssh
 # 600 alle keys
-chmod 600 /home/$USER_NAME/.ssh/authorized_keys
+touch /home/$USER_NAME/.ssh/authorized_keys
 
-
-cat <<EOF >> ~/.ssh/authorized_keys
+cat <<EOF >> /home/$USER_NAME/.ssh/authorized_keys
 $PUBLIC_KEY
 EOF
+
+chmod 600 /home/$USER_NAME/.ssh/authorized_keys
