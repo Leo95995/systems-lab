@@ -12,7 +12,7 @@ sudo ufw default deny incoming
 echo "allow outgoing"
 sudo ufw default allow outgoing
 # Limite ssh . permettere sulla 22 con rate limit sulla 22
-# Proteggo da brute force
+# Proteggo da brute force. metto accesso solo da tailscale network mesh
 sudo ufw allow in from 100.64.0.0/10 to any port 22 proto tcp
 # Permetto le porte http:80 e https: 443
 sudo ufw allow 80/tcp
