@@ -1,11 +1,15 @@
 
 # Aggiorno il sistema
+echo "Updating the system if needed"
+
 sudo apt update -y
 
 #  imposto UFW per deny incoming rifiuto tutto in entrata
 #  permetto tutto in uscita (outgoing)
-sudo ufw default deny incoming
 
+echo "Deny Incoming"
+sudo ufw default deny incoming
+echo "allow outgoing"
 sudo ufw default allow outgoing
 # Limite ssh . permettere sulla 22 con rate limit sulla 22
 # Proteggo da brute force
@@ -15,17 +19,18 @@ sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp  
 
 # abilito ufw 
+echo "Abilito ufw..."
 echo "y" | sudo ufw enable
 # Ricarico ufw
+echo "Ricarico ufw..."
 sudo ufw reload
 
 # Installare fail2ban
+
+echo "installo fail2ban"
 sudo apt install fail2ban -y
 
-# Per config file jail.conf
-
-sudo ls -l /etc/fail2ban/directory
-
+echo "Creo la config per fail2ban"
 # Fail 2 ban file configuration
 sudo cat <<EOF > /etc/fail2ban/jail.d/sshd.conf
 [sshd]
@@ -38,9 +43,10 @@ bantime = 1h
 findtime = 10m
 EOF
 
+echo "Riavvio fail2ban"
+
 # Restarto fail2ban dopo aver modificato le impostazioni
 sudo systemctl restart fail2ban
 # Verifico lo stato dopo aver resettato
-
-
+echo "Verifico fail2ban"
 sudo fail2ban-client status sshd
