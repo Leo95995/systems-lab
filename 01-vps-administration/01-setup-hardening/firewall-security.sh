@@ -2,7 +2,7 @@
 # Aggiorno il sistema
 echo "Updating the system if needed"
 
-sudo apt update -y
+sudo apt update
 
 #  imposto UFW per deny incoming rifiuto tutto in entrata
 #  permetto tutto in uscita (outgoing)
