@@ -13,7 +13,7 @@ echo "allow outgoing"
 sudo ufw default allow outgoing
 # Limite ssh . permettere sulla 22 con rate limit sulla 22
 # Proteggo da brute force
-sudo ufw allow limit 22/tcp
+sudo ufw limit 22/tcp
 # Permetto le porte http:80 e https: 443
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp  
