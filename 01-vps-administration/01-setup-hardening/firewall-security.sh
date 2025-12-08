@@ -1,4 +1,6 @@
+#!/bin/bash
 
+set -e
 # Aggiorno il sistema
 echo "Updating the system if needed"
 
