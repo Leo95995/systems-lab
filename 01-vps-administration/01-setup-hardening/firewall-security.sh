@@ -31,8 +31,8 @@ echo "installo fail2ban"
 sudo apt install fail2ban -y
 
 echo "Creo la config per fail2ban"
-# Fail 2 ban file configuration
-sudo cat <<EOF > /etc/fail2ban/jail.d/sshd.conf
+# Avvia una sub-shell con privilegi root per eseguire l'intera operazione
+sudo bash -c 'cat <<EOF > /etc/fail2ban/jail.d/sshd.conf
 [sshd]
 enabled = true
 port = 22
@@ -41,8 +41,7 @@ logpath = /var/log/auth.log
 maxretry = 3
 bantime = 1h
 findtime = 10m
-EOF
-
+EOF'
 echo "Riavvio fail2ban"
 
 # Restarto fail2ban dopo aver modificato le impostazioni
