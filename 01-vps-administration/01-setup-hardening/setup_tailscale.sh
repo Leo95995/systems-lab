@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 # Installation of tailscale on linux
 curl -fsSL https://tailscale.com/install.sh | sh
 
