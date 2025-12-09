@@ -24,7 +24,7 @@ sudo systemctl start docker
 echo -e " \n Docker avviato."
 
 
-# Verifica nginx
+# checko nginx
 if command -v nginx &> /dev/null; then
     echo -e "\n Nginx è già installato. Salto l'installazione."
 else
@@ -39,14 +39,13 @@ echo  -e "\n Nginx installato . Avvio in corso.."
 sudo systemctl start nginx
 echo -e "\n Nginx avviato. "
 
-# Apro le porte nginx se non sono gia state aperte
+# apro le porte nginx se non sono gia state aperte
 echo -e "\n Apertura porte 80 e 443 su UFW Nginx Full"
 sudo ufw allow 'Nginx Full'
 
 WHOAMI=$(whoami)
 
-
-# Idempotenza: Controllo se l'utente è già nel gruppo
+# controllo se l'utente è gia nel gruppo docker
 if groups $WHOAMI | grep -q docker; then
     echo -e "\n Utente $WHOAMI è già nel gruppo docker."
 else
