@@ -25,6 +25,7 @@ echo -e "\n Procedo a inserire creare la configurazione Nginx"
 
 CONF_FILE="/etc/nginx/sites-available/$DOMAIN_NAME.conf"
 
+# Bash detail
 sudo bash -c "cat <<EOF > $CONF_FILE
 server {
     listen 80;
