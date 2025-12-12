@@ -57,9 +57,9 @@ server {
         proxy_pass http://127.0.0.1:$APP_PORT; 
         
         # Righe essenziali per headers HTTP corretti
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header Host '\$host';
+        proxy_set_header X-Real-IP '\$remote_addr';
+        proxy_set_header X-Forwarded-For '\$proxy_add_x_forwarded_for';
     }
 }
 EOF"
@@ -67,11 +67,7 @@ EOF"
 
 echo "File di config $DOMAIN_NAME.conf creato con successo"
 
-# Attiva la Configurazione (Symlink).
-# Verifica la Configurazione (Test).
-# Rendi Effettiva la Modifica (Reload).
-
-# Questo crea il link simbolico per collegare il file in sites/available
+# questo crea il link simbolico per collegare il file in sites/available
 # File Originale e file di destinazione
 sudo ln -s "$CONF_FILE" "$CONF_FILE_ENABLED"
 
