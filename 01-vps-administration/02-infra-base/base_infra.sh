@@ -12,11 +12,30 @@ sudo apt install git curl vim -y
 if command -v docker.io &> /dev/null; then
     echo -e "\n Docker.io è già installato. Salto l'installazione.  "
 else
-    echo -e "\n Procedo ad installare docker"
-    sudo apt install docker.io -y
+    echo -e "\n Procedo ad installare Docker Engine"
+    
+    # Prerequisiti
+    sudo apt install ca-certificates curl -y
+    sudo install -m 0755 -d /etc/apt/keyrings
+    
+    # Aggiungi chiave GPG e repository
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    
+    sudo tee /etc/apt/sources.list.d/docker.sources <<EOF
+Types: deb
+URIs: https://download.docker.com/linux/ubuntu
+Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
+Components: stable
+Signed-By: /etc/apt/keyrings/docker.asc
+EOF
 
+    sudo apt update -y
+    # Installo solo il demone, client e buildx (il necessario per il base setup)
+    sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin 
+    
     sudo systemctl enable docker
-    echo -e "\n Docker installato. Avviato e abilitato all'avvio."
+    echo -e "\n Docker Engine installato e abilitato all'avvio."
 fi
 
 
