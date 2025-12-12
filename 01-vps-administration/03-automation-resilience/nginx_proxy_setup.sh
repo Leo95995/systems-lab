@@ -16,6 +16,17 @@ echo "Inserire la porta dell'applicazione docker"
 # Param 2
 read APP_PORT
 
+
+# Verifico se i param obbligatori sono inseriti
+#  -z -> True se stringa vuota
+# -n -> True se stringa popolata
+if [[ -z $DOMAIN_NAME || -z $APP_PORT ]]; then 
+
+    echo "Missing non optional parameters"
+    exit 1
+fi
+
+
 # Prepara il file per gli available
 CONF_FILE="$NGINX_CONF_PATH/$DOMAIN_NAME.conf" # Questo viene dalla Fase 1
 # Prepara il file per gli enabled
@@ -27,13 +38,6 @@ if [ -L "$CONF_FILE_ENABLED" ]; then
     echo "Pulizia: Vecchio link simbolico rimosso."
 fi
 
-#  -z -> True se stringa vuota
-# -n -> True se stringa popolata
-if [[ -z $DOMAIN_NAME || -z $APP_PORT ]]; then 
-
-    echo "Missing non optional parameters"
-    exit 1
-fi
 
 
 echo -e "\n Docker Port inserita: $APP_PORT"
