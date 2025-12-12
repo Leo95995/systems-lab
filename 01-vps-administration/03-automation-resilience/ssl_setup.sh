@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Chiedo il nome del dominio per avere il certificato dove fare il rinnovo
 read  -p "Inserisci il nome del dominio " DOMAIN_NAME
 read -p "Inserisci l'EMAIL di amministrazione: " ADMIN_EMAIL
