@@ -3,7 +3,7 @@ set -e
 
 # veririfco se siste mongo dump sennò installo mongo db tools
 check_tools() {
-    command -v mongodump &> /dev/null || (echo "Installazione tools..." && sudo apt update && sudo apt install -y mongodb-database-tools)
+    command -v mongodump &> /dev/null || (echo "Installazione tools..."  && sudo apt install -y mongodb-database-tools)
 }
 
 # passo i parametri url nome
