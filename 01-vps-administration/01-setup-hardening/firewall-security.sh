@@ -35,7 +35,7 @@ sudo apt install fail2ban -y
 echo "Creo la config per fail2ban"
 # Avvia una sub-shell con privilegi root per eseguire l'intera operazione
 sudo bash -c 'cat <<EOF > /etc/fail2ban/jail.d/sshd.conf
-[sshd]
+[sshd]  
 enabled = true
 port = 22
 filter = sshd
