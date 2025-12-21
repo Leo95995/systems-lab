@@ -1,0 +1,1 @@
+# Script che serve per effettuare il backup
