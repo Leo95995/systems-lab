@@ -2,17 +2,17 @@
 
 set -e
 
-# Sostituzione della Password Authentication (Critico)
+#  sostituisco password auth rimuovendo la possibilità di accesso
 sudo sed -i 's/^#\?PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
 
-# Sostituzione di PermitRootLogin va messo a no o prohibit-password
+# sostituisco la possibilità di login come root
 sudo sed -i 's/^#\?PermitRootLogin .*$/PermitRootLogin no/' /etc/ssh/sshd_config
 
-# Sostituzione di ChallengeResponseAuthentication (Sicurezza Aggiuntiva)
+# substitute challenge response auth
 sudo sed -i 's/^#\?ChallengeResponseAuthentication yes/ChallengeResponseAuthentication no/' /etc/ssh/sshd_config
 
-# Sostituzione di Protocollo (Verifica)
+# sostituisco protocolllo
 sudo sed -i 's/^#\?Protocol .*$/Protocol 2/' /etc/ssh/sshd_config
 
-# Riavvia il servizio per applicare le modifiche
+# infine riavvio sssh service
 sudo systemctl restart ssh.service
