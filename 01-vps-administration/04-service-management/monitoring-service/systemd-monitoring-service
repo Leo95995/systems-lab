@@ -8,4 +8,8 @@ After=network.target
 Type=Simple
 ExecStart=/usr/local/bin/monitoring_script.sh
 Restart=always
-RestartSec=10S
+RestartSec=1s
+User=root
+
+[Install]
+WantedBy=multi-user.target
