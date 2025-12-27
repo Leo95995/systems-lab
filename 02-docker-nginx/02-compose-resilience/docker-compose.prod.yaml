@@ -1,0 +1,51 @@
+# buildo direttamente dai Dockerfile locali cartella-01.
+# Più veloce per il Lab in produzione userei un Registry ex Docker Hub, 
+# ma qui mi serve che ogni modifica al codice sia subito pronta nel container per sperimentare
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: node-production.dockerfile
+    container_name: api-service
+    restart: unless-stopped
+    # healthcheck che permette a docker di monitorare se l'app risponde 
+    # per usare curl ho messo nel nod-prod dockerfile la slim invece che alpine perchè contiene i tool 
+    healthcheck:
+    # sostituire l'url con l'endpoint che decido di usare per la verifica
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+     # do un limite di risorse per evitare che prenda troppa ram in caso di problemi
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    # aggiungo logging e do un limite ai log per evitare di riempire la memoriaw
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: react-nginx-multistage.dockerfile
+    container_name: web-frontend
+    restart: unless-stopped
+    depends_on:
+      # parte solo e se il backend ha superato l'healthcheck
+      backend:
+        condition: service_healthy 
+    networks:
+      - app-network
+    ports:
+      - "80:80"
+
+networks:
+  app-network:
+    driver: bridge
