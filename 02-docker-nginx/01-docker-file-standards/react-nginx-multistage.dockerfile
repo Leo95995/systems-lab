@@ -5,7 +5,7 @@ FROM node:20-alpine AS build-stage
 WORKDIR /app
 
 COPY package*.json ./
-# installo le dipendenza
+# installo le dipendenze
 RUN npm ci
 
 COPY . .
@@ -28,5 +28,5 @@ EXPOSE 80
 # avvio Nginx con "daemon off;"perchè cosi posso farlo girare in primo piano
 # infatti su docker, il container vive solo finché il processo principale (che è pid 1) è attivo
 # quindi se nginxpartisse come demonee equindi in background, il processo principale terminerebbe subito dopo l'avvio, 
-# facendo questo docker spegnerebbe il container pensando che abbia finito il suo lavoro e quindi non potrebbe funzionare
+# Facendo questo docker spegnerebbe il container pensando che abbia finito il suo lavoro e quindi non potrebbe funzionare
 CMD ["nginx", "-g", "daemon off;"]
