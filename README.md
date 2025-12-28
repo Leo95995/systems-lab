@@ -38,4 +38,6 @@ This section is mainly for learning and experimentation. For most VPS workloads,
 
 ## Notes
 This is a living repo. Things here change as my setup evolves.  
+Configs are provided as reference and may need adaptation for different environments.
+
 
