@@ -1,0 +1,84 @@
+# This is the Playbook for setupping docker 
+
+- name: "Setup: Preparo Docker e Docker Compose"
+  hosts: hetzner_vps
+  become: true
+  vars:
+    user_name: leo
+
+  tasks:
+    - name: "Installazione utilities"
+      apt:
+        name: [git, curl, vim, ca-certificates, gnupg]
+        state: present
+        update_cache: yes
+    
+    - name: "Create the apt keyrings folder"
+      file: 
+        - path: /etc/apt/keyrings
+          state: directory
+          mode: '0755'
+
+    - name: "Docker - Download GPG key"
+    #  get url è l'alternativa a curl di ansible. verifica di per se
+    #  il contenuto 
+      get_url: 
+        #  path
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc # path dove viene scaricato
+        mode: 'a+r' # da permesso di lettura a tutti ( come se facessi chmod )
+    
+    #  preparo il file delle docker sources 
+    - name: "Aggiungo il repository in formato deb822 "
+      copy: 
+        dest: /etc/apt/sources.list.d/docker.sources
+        content: | 
+        Types: deb
+        URIs: https://download.docker.com/linux/ubuntu
+        Suites: {{ ansible_distribution_release }}
+        Components: stable
+        Signed-By: /etc/apt/keyrings/docker.asc
+
+    # installa pacchetti engine 
+    - name: "Installazione dei pacchetti docker" 
+      apt: 
+        name: 
+         - docker-ce
+         - docker-ce-cli
+         - containerd.io
+         - docker-buildx-plugin
+         - docker-compoose-plugin
+        state: present
+        update_cache: yes
+    
+    - name: "Docker avvia e abilita il servizio"
+    # abilita il servizio docker in ssh
+      service: 
+        name: docker
+        state: started
+        enabled: yes
+    
+    # Nginx + packet installation
+    - name: 'Nginx installa pacchetto'
+      apt: 
+        name: nginx
+        state: present
+
+    - name: 'Nginx abilita e avvia il serviziio'
+      service: 
+        name: nginx
+        state: started
+        enabled: yes
+
+    # ------- config -------
+
+    - name: "attivo nginx full on ( 80/443)"
+      ufw: 
+        rule: allow
+        name: "Nginx Full"
+
+    - name: "inserisco la mia utenza {{ user_name }}  nel gruppo docker"
+      user: 
+        name: "{{ user_name }}"
+        groups: docker
+        append: yes
