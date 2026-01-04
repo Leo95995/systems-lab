@@ -1,5 +1,5 @@
 # usato come punto di entrata per tutti i playbook
 
 - import_playbook: playbook/bootstrap.yaml
-- import_playbook: playbooks/playbook2.yaml
-- import_playbook: playbooks/playbook3.yaml
+- import_playbook: playbooks/setup-server.yaml
+- import_playbook: playbooks/deploy-app.yaml
