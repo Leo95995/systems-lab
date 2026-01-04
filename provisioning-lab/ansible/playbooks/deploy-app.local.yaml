@@ -1,0 +1,38 @@
+# test locale senza git per ora
+- name: "DEPLOY TEST: Esempio con Copia Locale "
+  hosts: vps
+  become: true
+  vars_files:
+    - ../vars/var-deploy-app.yaml
+
+  tasks:
+    - name: "verifiare che la cartella esista"
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        mode: '0755'
+
+    - name: "sposto i file dal PC alla VPS "
+      # faccio puntare alla cartella di test
+      copy:
+      #  path locale (devo definirlo nelle vars)
+        src: "{{ local_project_path }}/"
+        dest: "{{ app_dir }}/"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        mode: '0644'
+
+    - name: " Copio il file .env per i test se presenti"
+      copy:
+        src: "../files/prod.env" 
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ user_name }}"
+        mode: '0600'
+
+    - name: "tiro su il container docker"
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_dir }}"
+        state: present
+        build: always

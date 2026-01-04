@@ -1,0 +1,42 @@
+# third step deploy
+- name: "Deploy app fullstack"
+  hosts: hetzner_vps
+  # mi do i privilegi di root
+  become: true 
+  vars_files:
+    - ../vars/var-deploy-app.yaml
+  tasks:
+    - name: "Assicura che la cartella diu destinazione dell'app esista"
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+
+  #  dobbiamo targettare un app da deployare
+    - name: "Clonazione e Aggiornamentp del repository"
+      git:
+        repo: "{{ git_repo }}"
+        dest: "{{ app_dir }}"
+        # inserire il branch principale ( se non è main ci devo mettere il branch principale di git)
+        version: main 
+        # con questo posso sovrascrivere eventuali cambiamenti localik
+        force: yes 
+
+    - name: "copio gli env per il deploy"
+      # copio l'eventuale file env che gli server ( )
+      copy:
+        src: "../files/prod.env" 
+        dest: "{{ app_dir }}/.env"
+        owner: "{{ user_name }}"
+        group: "{{ user_name }}"
+        mode: '0600'
+
+    - name: "Deploy: Avvio container con Docker Compose"
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_dir }}"
+        state: present
+         # pulla eventuali immagini agiornate
+        pull: always
+        # builda l'immagine se cambia il dockerfile
+        build: always

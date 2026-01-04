@@ -2,3 +2,16 @@ docs.md
 info.md
 *explanation*
 structure.md
+# Terraform
+*.tfvars
+*.tfvars.json
+.terraform/
+*.tfstate
+*.tfstate.backup
+.hcloud-token
+# ip vps target
+ip_vps.txt
+
+# Ansible
+# escludo l'inventario con gli ip delle vps
+inventory.ini

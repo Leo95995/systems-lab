@@ -1,0 +1,111 @@
+# Preparo la macchina hetzner per lavorare 
+
+- name: 'Bootstrap hetzner machines'
+  hosts: hetzner_vps
+  # aggiungo la possibilità per l'utente di utilizzare root
+  become: true
+  vars:
+    new_user: leo
+    public_key_path: ~/.ssh/leo-vps-devops.pub
+    # questo opzionale solo se voglio usare tailscale
+    allowed_ssh_network: "100.64.0.0/10"  # range che tailscale usa d default
+  tasks: 
+    #------ creazione user --------
+    
+    - name: create user
+    # uso il modulo user pèer creare l'utente
+      user:
+      #  jinja 2 template
+        name: "{{ new_user }}"
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+    # copio la key ssh nel nuovo user
+    - name: copy ssh in the new user
+      ansible.builtin.authorized_key: 
+        user: "{{new_user}}"
+        state: present
+        key: "{{ lookup('file', public_key_path) }}"
+
+    - name: update sudoers file
+    # modulo lineinfile permetto di usare sudo senza password per chi è sudo
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%sudo'
+        # modifico da ALL a NOPASSWD:ALL
+        line: '%sudo ALL=(ALL) NOPASSWD:ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+
+   
+    # ------- ssh hardening --------
+    - name: Ssh Hardening 
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      loop: 
+        - { regexp: "^#?PermitRootLogin", line: "PermitRootLogin no" }
+        - { regexp: "^#?PasswordAuthentication", line: "PasswordAuthentication no" }
+        - { regexp: "^#?ChallengeResponseAuthentication", line: "ChallengeResponseAuthentication no" }
+        - { regexp: "^#?Protocol", line: "Protocol 2" }
+      notify: Restart SSH
+
+    # ------ firewall (UFW) --------
+    - name: Install UFW
+      apt: 
+        name: ufw
+        state: present
+# Setup for the ufw rules
+    - name: Setup UFW rules
+      ufw: 
+        rule: "{{ item.rule }}"
+        port: "{{ item.port | default(omit) }}"
+        from_ip: "{{ item.from_ip | default('any') }}"
+        proto: "{{ item.proto | default('any') }}"
+      loop: 
+        - { rule: 'deny', direction: 'incoming'}
+        # su ssh mi posso connettere solo dal mio ip allowed ( tailscale )
+        - { rule: 'allow', port: '22' , from_ip: "{{ allowed_ssh_network }}" , proto: 'tcp'}
+        - { rule: 'allow', port: '80',  proto: 'tcp'}
+        - { rule: 'allow', port: '443', proto: 'tcp'}
+    
+    - name: Enable UFW
+      ufw: 
+        state: enabled
+# ----- Fail2Ban setup  ---------------
+    - name: "Fail2Ban: Protezione Brute Force"
+      block:
+# task 1 installo failtoban
+        - name: "Fail2Ban: Installa pacchetto"
+          apt:
+            name: fail2ban
+            state: present # se è gia presente non installa fail2oban
+#  task 2 creo la config con il content per jail
+        - name: "Fail2Ban: Crea file di configurazione jail sshd"
+          copy:
+            dest: /etc/fail2ban/jail.d/sshd.conf
+            content: |
+              [sshd]
+              enabled = true
+              port = 22
+              filter = sshd
+              logpath = /var/log/auth.log
+              maxretry = 3
+              bantime = 1h
+              findtime = 10m
+          notify: Restart Fail2Ban # notifico all'handler di restartare fail2ban
+
+# qui ci sono gli handler collegati ai notify nelle operazioni che ho definito sopra
+  handlers:
+  - name: Restart SSH # questo richiama Restart Ssh del task con il name "Ssh Hardening"
+    service: 
+      name: ssh
+      state: restarted
+
+#  restart the fail2ban service
+  - name: Restart Fail2ban
+    service: 
+      name: fail2ban
+      # si riavvia solo se un task precedente ha inviato una notifica
+      state: restarted
