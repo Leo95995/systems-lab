@@ -15,9 +15,9 @@
     
     - name: "Create the apt keyrings folder"
       file: 
-        - path: /etc/apt/keyrings
-          state: directory
-          mode: '0755'
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
 
     - name: "Docker - Download GPG key"
     #  get url è l'alternativa a curl di ansible. verifica di per se
