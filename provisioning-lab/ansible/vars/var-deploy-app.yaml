@@ -1,0 +1,5 @@
+user_name: "leo"
+app_dir: "/home/leo/apps/{{ app_name }}"
+app_name: "mio-progetto-fullstack"
+git_repo: "git@github.com:tuo-username/il-tuo-repo.git"
+docker_compose_file: "docker-compose.prod.yml"
