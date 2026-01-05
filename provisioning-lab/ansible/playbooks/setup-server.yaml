@@ -47,7 +47,7 @@
          - docker-ce-cli
          - containerd.io
          - docker-buildx-plugin
-         - docker-compoose-plugin
+         - docker-compose-plugin
         state: present
         update_cache: yes
     
