@@ -4,6 +4,8 @@
   hosts: hetzner_vps
   # aggiungo la possibilità per l'utente di utilizzare root
   become: true
+  vars_files:
+    - ../private_vars.yaml
   vars:
     new_user: leo
     public_key_path: ~/.ssh/leo-vps-devops.pub
@@ -50,6 +52,13 @@
         - { regexp: "^#?ChallengeResponseAuthentication", line: "ChallengeResponseAuthentication no" }
         - { regexp: "^#?Protocol", line: "Protocol 2" }
       notify: Restart SSH
+    
+    # tailscale setup
+    - name: Install Tailscale
+      shell: curl -fsSL https://tailscale.com/install.sh | sh
+
+    - name: Authenticate Tailscale
+      shell: tailscale up --authkey={{ tailscale_auth_key }}
 
     # ------ firewall (UFW) --------
     - name: Install UFW
