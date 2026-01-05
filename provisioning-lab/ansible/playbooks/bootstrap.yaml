@@ -5,7 +5,7 @@
   # aggiungo la possibilità per l'utente di utilizzare root
   become: true
   vars_files:
-    - ../private_vars.yaml
+    - ../private_vars.yml
   vars:
     new_user: leo
     public_key_path: ~/.ssh/leo-vps-devops.pub
@@ -22,6 +22,8 @@
         shell: /bin/bash
         groups: sudo
         append: yes
+        create_home: yes
+        state: present
     # copio la key ssh nel nuovo user
     - name: copy ssh in the new user
       ansible.builtin.authorized_key: 
