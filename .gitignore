@@ -15,3 +15,5 @@ ip_vps.txt
 # Ansible
 # escludo l'inventario con gli ip delle vps
 inventory.ini
+# escludo le variabili private
+private_vars.yml
