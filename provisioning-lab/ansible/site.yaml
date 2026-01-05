@@ -2,5 +2,5 @@
 
 - import_playbook: playbooks/bootstrap.yaml
 - import_playbook: playbooks/setup-server.yaml
-- import_playbook: playbooks/deploy-app-local.yaml
-# - import_playbook: playbooks/deploy-app-prod.yaml
+- import_playbook: playbooks/deploy-app.local.yaml
+# - import_playbook: playbooks/deploy-app.prod.yaml
