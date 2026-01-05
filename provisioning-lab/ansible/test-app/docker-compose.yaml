@@ -1,0 +1,9 @@
+services:
+  web-test:
+    image: nginx:alpine
+    container_name: systems-lab-smoke-test
+    ports:
+      - "8080:80"
+    volumes:
+      - ./index.html:/usr/share/nginx/html/index.html
+    restart: always
