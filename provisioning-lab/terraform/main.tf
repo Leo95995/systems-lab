@@ -66,7 +66,7 @@ resource "hcloud_server" "systems-lab-vm" {
 resource "local_file" "ansible_inventory" {
   filename = "../ansible/inventory.ini"
   content  = <<EOT
-[vps]
+[hetzner_vps]
 systems-lab-vm ansible_host=${hcloud_server.systems-lab-vm.ipv4_address} ansible_user=root
 EOT
 }
