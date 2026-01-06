@@ -109,14 +109,14 @@
 
 # qui ci sono gli handler collegati ai notify nelle operazioni che ho definito sopra
   handlers:
-  - name: Restart SSH # questo richiama Restart Ssh del task con il name "Ssh Hardening"
-    service: 
-      name: ssh
-      state: restarted
+    - name: Restart SSH # questo richiama Restart Ssh del task con il name "Ssh Hardening"
+      service: 
+        name: ssh
+        state: restarted
 
-#  restart the fail2ban service
-  - name: Restart Fail2ban
-    service: 
-      name: fail2ban
-      # si riavvia solo se un task precedente ha inviato una notifica
-      state: restarted
+  #  restart the fail2ban service
+    - name: Restart Fail2ban
+      service: 
+        name: fail2ban
+        # si riavvia solo se un task precedente ha inviato una notifica
+        state: restarted
