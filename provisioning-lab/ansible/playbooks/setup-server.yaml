@@ -33,11 +33,11 @@
       copy: 
         dest: /etc/apt/sources.list.d/docker.sources
         content: | 
-        Types: deb
-        URIs: https://download.docker.com/linux/ubuntu
-        Suites: "{{ ansible_distribution_release }}"
-        Components: stable
-        Signed-By: /etc/apt/keyrings/docker.asc
+          Types: deb
+          URIs: https://download.docker.com/linux/ubuntu
+          Suites: "{{ ansible_distribution_release }}"
+          Components: stable
+          Signed-By: /etc/apt/keyrings/docker.asc
 
     # installa pacchetti engine 
     - name: "Installazione dei pacchetti docker" 
@@ -48,6 +48,9 @@
          - containerd.io
          - docker-buildx-plugin
          - docker-compose-plugin
+         - python3-pip
+         - python3-docker
+
         state: present
         update_cache: yes
     
