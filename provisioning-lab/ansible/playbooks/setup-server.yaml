@@ -3,6 +3,8 @@
 - name: "Setup: Preparo Docker e Docker Compose"
   hosts: hetzner_vps
   become: true
+  vars_files:
+    - "../private_vars.yml"
   vars:
     user_name: leo
 
@@ -33,21 +35,23 @@
       copy: 
         dest: /etc/apt/sources.list.d/docker.sources
         content: | 
-        Types: deb
-        URIs: https://download.docker.com/linux/ubuntu
-        Suites: {{ ansible_distribution_release }}
-        Components: stable
-        Signed-By: /etc/apt/keyrings/docker.asc
+          Types: deb
+          URIs: https://download.docker.com/linux/ubuntu
+          Suites: {{ ansible_distribution_release }}
+          Components: stable
+          Signed-By: /etc/apt/keyrings/docker.asc
 
     # installa pacchetti engine 
     - name: "Installazione dei pacchetti docker" 
       apt: 
         name: 
+         - python3-pip
+         - python3-docker
          - docker-ce
          - docker-ce-cli
          - containerd.io
          - docker-buildx-plugin
-         - docker-compoose-plugin
+         - docker-compose-plugin
         state: present
         update_cache: yes
     
@@ -61,15 +65,45 @@
     # Nginx + packet installation
     - name: 'Nginx installa pacchetto'
       apt: 
-        name: nginx
+        name: 
+          - nginx
+          - certbot
+          - python3-certbot-nginx
         state: present
+        update_cache: yes
 
     - name: 'Nginx abilita e avvia il serviziio'
       service: 
         name: nginx
         state: started
         enabled: yes
+    # i get the ssl certificate
+    - name: "cert ssl with certbot certonly"
+      command: >
+        certbot certonly --nginx 
+        -d {{  domain_name }}
+        -d {{  domain_name_2 }} 
+        --non-interactive 
+        --agree-tos 
+        -m {{  admin_email }}
+      args:
+        creates: /etc/letsencrypt/live/tf-ansible-lab.leolab.dev/fullchain.pem
+      register: certbot_output
 
+    # 2.  add reverse proxy
+    - name: "Configuro nginx come reverse proxy"
+      copy: 
+        src: "../files/nginx_reverse_proxy.conf"
+        dest: /etc/nginx/sites-available/default
+        owner: root
+        group: root
+        mode: '0644'
+      notify: "Riavvio di Nginx"
+
+    - name: "Mostra l'esito di Certbot in caso di errore"
+      debug:
+        msg: "{{ certbot_output.stdout_lines }}"
+      when: certbot_output.failed is defined and certbot_output.failed
     # ------- config -------
 
     - name: "attivo nginx full on ( 80/443)"
@@ -82,3 +116,9 @@
         name: "{{ user_name }}"
         groups: docker
         append: yes
+    
+  handlers:
+    - name: "Riavvio di Nginx"
+      service: 
+        name: nginx
+        state: restarted

@@ -1,6 +1,6 @@
 # test locale senza git per ora
 - name: "DEPLOY TEST: Esempio con Copia Locale "
-  hosts: vps
+  hosts: hetzner_vps
   become: true
   vars_files:
     - ../vars/var-deploy-app.yaml
@@ -10,8 +10,6 @@
       file:
         path: "{{ app_dir }}"
         state: directory
-        owner: "{{ user_name }}"
-        group: "{{ user_name }}"
         mode: '0755'
 
     - name: "sposto i file dal PC alla VPS "
@@ -26,7 +24,7 @@
 
     - name: " Copio il file .env per i test se presenti"
       copy:
-        src: "../files/prod.env" 
+        src: "../files/.env.prod" 
         dest: "{{ app_dir }}/.env"
         owner: "{{ user_name }}"
         mode: '0600'

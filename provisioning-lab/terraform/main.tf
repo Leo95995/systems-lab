@@ -37,8 +37,13 @@ resource "hcloud_firewall" "default_firewall" {
     # accetta tutti gli ip
     source_ips = ["0.0.0.0/0", "::/0"] 
   }
- 
 }
+
+# creazione dell'ip statico
+# resource "hcloud_floating_ip" "systems-lab-ip" {
+#   type = "ipv4"
+#   home_location = "fsn1"
+# }
 
 resource "hcloud_server" "systems-lab-vm" {
   name        = "systems-lab-vm"
@@ -62,11 +67,19 @@ resource "hcloud_server" "systems-lab-vm" {
   firewall_ids = [hcloud_firewall.default_firewall.id]
 }
 
+# assegnazione ip statico (poi non devo usare questa risorse ma il floating ip sopra)
+# resource "hcloud_floating_ip_assignment" "main" {
+#   floating_ip_id = hcloud_floating_ip.systems-lab-ip.id
+#   server_id = hcloud_server.systems-lab-vm.id
+# }
+
+
+
 # creo in automatico il file inventory ini con l'ip della macchina creata
 resource "local_file" "ansible_inventory" {
   filename = "../ansible/inventory.ini"
   content  = <<EOT
-[vps]
+[hetzner_vps]
 systems-lab-vm ansible_host=${hcloud_server.systems-lab-vm.ipv4_address} ansible_user=root
 EOT
 }

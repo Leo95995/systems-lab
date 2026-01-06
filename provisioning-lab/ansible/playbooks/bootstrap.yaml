@@ -4,6 +4,8 @@
   hosts: hetzner_vps
   # aggiungo la possibilità per l'utente di utilizzare root
   become: true
+  vars_files:
+    - ../private_vars.yml
   vars:
     new_user: leo
     public_key_path: ~/.ssh/leo-vps-devops.pub
@@ -20,6 +22,8 @@
         shell: /bin/bash
         groups: sudo
         append: yes
+        create_home: yes
+        state: present
     # copio la key ssh nel nuovo user
     - name: copy ssh in the new user
       ansible.builtin.authorized_key: 
@@ -50,6 +54,13 @@
         - { regexp: "^#?ChallengeResponseAuthentication", line: "ChallengeResponseAuthentication no" }
         - { regexp: "^#?Protocol", line: "Protocol 2" }
       notify: Restart SSH
+    
+    # tailscale setup
+    - name: Install Tailscale
+      shell: curl -fsSL https://tailscale.com/install.sh | sh
+
+    - name: Authenticate Tailscale
+      shell: tailscale up --authkey={{ tailscale_auth_key }}
 
     # ------ firewall (UFW) --------
     - name: Install UFW
@@ -57,18 +68,25 @@
         name: ufw
         state: present
 # Setup for the ufw rules
+    - name: "Imposta come policy di default Deny Incoming"
+      ufw: 
+        state: enabled
+        direction: incoming
+        policy: deny # preparo prima la policy di deny
+
     - name: Setup UFW rules
       ufw: 
-        rule: "{{ item.rule }}"
+        rule: allow
         port: "{{ item.port | default(omit) }}"
         from_ip: "{{ item.from_ip | default('any') }}"
         proto: "{{ item.proto | default('any') }}"
       loop: 
-        - { rule: 'deny', direction: 'incoming'}
         # su ssh mi posso connettere solo dal mio ip allowed ( tailscale )
-        - { rule: 'allow', port: '22' , from_ip: "{{ allowed_ssh_network }}" , proto: 'tcp'}
-        - { rule: 'allow', port: '80',  proto: 'tcp'}
-        - { rule: 'allow', port: '443', proto: 'tcp'}
+        - {  port: '22' , from_ip: "{{ allowed_ssh_network }}" , proto: 'tcp'}
+        - { port: '80',  proto: 'tcp'}
+        - {  port: '443', proto: 'tcp'}
+
+
     
     - name: Enable UFW
       ufw: 
@@ -98,14 +116,14 @@
 
 # qui ci sono gli handler collegati ai notify nelle operazioni che ho definito sopra
   handlers:
-  - name: Restart SSH # questo richiama Restart Ssh del task con il name "Ssh Hardening"
-    service: 
-      name: ssh
-      state: restarted
+    - name: Restart SSH # questo richiama Restart Ssh del task con il name "Ssh Hardening"
+      service: 
+        name: ssh
+        state: restarted
 
-#  restart the fail2ban service
-  - name: Restart Fail2ban
-    service: 
-      name: fail2ban
-      # si riavvia solo se un task precedente ha inviato una notifica
-      state: restarted
+  #  restart the fail2ban service
+    - name: Restart Fail2Ban
+      service: 
+        name: fail2ban
+        # si riavvia solo se un task precedente ha inviato una notifica
+        state: restarted

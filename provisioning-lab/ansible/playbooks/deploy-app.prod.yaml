@@ -26,7 +26,7 @@
     - name: "copio gli env per il deploy"
       # copio l'eventuale file env che gli server ( )
       copy:
-        src: "../files/prod.env" 
+        src: "../files/.env.prod" 
         dest: "{{ app_dir }}/.env"
         owner: "{{ user_name }}"
         group: "{{ user_name }}"
