@@ -17,3 +17,5 @@ ip_vps.txt
 inventory.ini
 # escludo le variabili private
 private_vars.yml
+# Excludes all env
+*.env*
