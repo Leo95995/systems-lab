@@ -1,43 +1,62 @@
-# Systems Lab
+# Systems-Lab
 
-Personal collection of scripts, configurations, and experiments used to manage my VPS infrastructure and practice DevOps workflows.
+This repository manages my VPS infrastructure using an Infrastructure-as-Code (IaC) approach.
 
-This repository exists to avoid manual setups, keep servers reproducible, and maintain a consistent baseline for security, networking, and deployments.
+It documents the transition from manual bash-based server management to a fully automated, reproducible provisioning workflow.
 
-## Overview
-
-### VPS Administration
-Bash scripts and systemd units for bootstrapping and maintaining Linux nodes.
-
-- SSH hardening and firewall rules (UFW)
-- Tailscale mesh networking for node-to-node access
-- Automated backups (MongoDB and local data)
-- Basic health checks and log rotation via systemd
-
-### Docker & Nginx
-Reusable configuration patterns for running web services consistently.
-
-- Multi-stage Dockerfiles with non-root execution
-- Nginx reverse proxy configs (gzip, security headers, SSL termination)
-- Docker Compose templates with network isolation
-
-### Kubernetes
-Manifests and experiments with core Kubernetes primitives.
-
-- Deployments, Services, Ingress
-- Traffic routing and basic resilience testing
-
-This section is mainly for learning and experimentation. For most VPS workloads, Docker Compose is still the default choice.
 
 ## Tech Stack
 
-- Linux (Debian / Ubuntu), Bash, systemd  
-- Docker, Docker Compose  
-- Kubernetes  
-- Nginx, Tailscale, Certbot  
+| Layer             | Technology    | Purpose                                                  |
+| ----------------- | ------------- | -------------------------------------------------------- |
+| **Cloud**         | Hetzner Cloud | Virtual infrastructure provider                          |
+| **IaC**           | Terraform     | Automated resource provisioning (VPS, network, SSH keys) |
+| **Configuration** | Ansible       | OS hardening and service orchestration                   |
+| **Proxy**         | Nginx         | Reverse proxy and traffic routing                        |
+| **SSL**           | Certbot       | Automated SSL/TLS management (cert-only workflow)        |
+| **Runtime**       | Docker        | Container engine and backend runtime environment         |
 
-## Notes
-This is a living repo. Things here change as my setup evolves.  
-Configs are provided as reference and may need adaptation for different environments.
+
+## Project Structure
+
+The project is split into two main areas:
+
+```
+provisioning-lab/       # Current IaC stack (Terraform + Ansible)
+infrastructure_old/     # Legacy bash scripts and manual configurations (reference only)
+```
+
+## Project Evolution
+
+This repository tracks the evolution from manual server management to modern DevOps practices.
+
+The `infrastructure_old` directory contains standalone Bash scripts and manual systemd configurations, while `provisioning-lab` replaces manual intervention with a fully automated IaC stack.
+
+This shift was driven by the need for scalability, security hardening, and reproducible infrastructure.
 
 
+## The Provisioning Stack
+
+
+###  Infrastructure Provisioning (Terraform)
+
+I use Terraform to manage the lifecycle of cloud resources on Hetzner Cloud through code, avoiding manual configuration via the web console.
+
+- **Code-defined**: Servers, SSH keys, and networks are managed via configuration files.
+
+- **State tracking**: Uses state files to track changes and prevent inconsistent configurations.
+
+- **Base Layer**: Sets up the underlying infrastructure required to run the VPS services.
+
+
+### Configuration & Hardening (Ansible)
+
+After the server is provisioned, Ansible automates the internal setup and security.
+
+- **Repeatable Setup**: Playbooks can be run multiple times to ensure the server is always configured correctly without breaking anything.
+
+- **Security**: Automated firewall (UFW) setup and SSH hardening to secure the server from the start.
+
+- **Clean SSL & Nginx**: Managed via certbot certonly. By separating the certificates from the Nginx config, the web server files stay clean and easy to manage manually.
+
+- **Docker Environment**: Automated installation of the Docker engine and required system dependencies for containerized workloads.
