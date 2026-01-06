@@ -115,7 +115,7 @@
         state: restarted
 
   #  restart the fail2ban service
-    - name: Restart Fail2ban
+    - name: Restart Fail2Ban
       service: 
         name: fail2ban
         # si riavvia solo se un task precedente ha inviato una notifica
