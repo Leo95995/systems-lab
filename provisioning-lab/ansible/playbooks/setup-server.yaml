@@ -35,7 +35,7 @@
         content: | 
           Types: deb
           URIs: https://download.docker.com/linux/ubuntu
-          Suites: "{{ ansible_distribution_release }}"
+          Suites: {{ ansible_distribution_release }}
           Components: stable
           Signed-By: /etc/apt/keyrings/docker.asc
 
@@ -43,14 +43,13 @@
     - name: "Installazione dei pacchetti docker" 
       apt: 
         name: 
+         - python3-pip
+         - python3-docker
          - docker-ce
          - docker-ce-cli
          - containerd.io
          - docker-buildx-plugin
          - docker-compose-plugin
-         - python3-pip
-         - python3-docker
-
         state: present
         update_cache: yes
     
